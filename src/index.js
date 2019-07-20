@@ -76,6 +76,16 @@ class Game extends React.Component {
         });
     }
     jumpTo(step) {
+        if(step === 0) {
+            this.setState({
+                history: [
+                    {
+                        squares: Array(9).fill(null),
+                        pos: "",
+                    }
+                ],
+            })
+        }
         this.setState({
             stepNumber: step,
             xIsNext: (step % 2) === 0,
@@ -98,6 +108,8 @@ class Game extends React.Component {
         let status;
         if (winner) {
             status = "Winner: " + winner;
+        } else if (history.length === 10) {
+            status = "It's a draw";
         } else {
             status = "Next player: " + (this.state.xIsNext ? "X" : "O");
         }
