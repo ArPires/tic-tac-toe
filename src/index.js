@@ -107,7 +107,8 @@ class Game extends React.Component {
 
         let status;
         if (winner) {
-            status = "Winner: " + winner;
+            let player = winner.pop();
+            status = "Winner: " + player;
         } else if (history.length === 10) {
             status = "It's a draw";
         } else {
@@ -152,7 +153,10 @@ function calculateWinner(squares) {
             squares[a] === squares[b] &&
             squares[a] === squares[c]
         ) {
-            return squares[a];
+            let winner = [];
+            winner.push(a,b,c,squares[a]);
+            return winner;
+            //return squares[a];
         }
     }
     return null;
