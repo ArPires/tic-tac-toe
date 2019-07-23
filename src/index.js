@@ -20,9 +20,11 @@ class Board extends React.Component {
         );
     }
     render() {
+        let result = [];
+        [0,3,6].forEach(a =>  result.push("<div className='board-row'>" + loop(a) + "</div>"));
         return (
             <div>
-                <div className="board-row">
+                {result/* <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
                     {this.renderSquare(2)}
@@ -36,7 +38,7 @@ class Board extends React.Component {
                     {this.renderSquare(6)}
                     {this.renderSquare(7)}
                     {this.renderSquare(8)}
-                </div>
+                </div> */}
             </div>
         );
     }
@@ -175,4 +177,12 @@ function mapPosition(i) {
         "(3,3)"
     ]
     return arrOfPositions[i];
+}
+
+function loop(n) {
+    let arr = [];
+    for(let i = n; i < n + 3; i++){
+        arr.push("{this.renderSquare(" + i + ")}")
+    }
+    return arr;
 }
