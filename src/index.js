@@ -10,7 +10,7 @@ function Square(props) {
     );
 }
 
-class Board extends React.Component {
+class BoardRow extends React.Component {
     renderSquare(i) {
         return (
             <Square
@@ -19,12 +19,38 @@ class Board extends React.Component {
             />
         );
     }
+    loop(n) {
+        let arr = [];
+        for(let i = n; i < n + 3; i++) {
+            arr.push(this.renderSquare(i));
+        }
+    }
     render() {
-        let result = [];
-        [0,3,6].forEach(a =>  result.push("<div className='board-row'>" + loop(a) + "</div>"));
+        return (
+            <div className="board-row">{this.props.loop}</div>
+        )
+    }
+}
+
+class Board extends React.Component {
+   /*  renderSquare(i) {
+        return (
+            <Square
+                value={this.props.squares[i]}
+                onClick={() => this.props.onClick(i)}
+            />
+        );
+    } */
+    render() {
+        let arr = [];
+        [0,3,6].forEach(value =>  arr.push(<BoardRow {...loop(value)} key={value}/>))
+        console.log(arr);
+        arr.map(a => console.log(a));
+        //let result = [];
+        //[0,3,6].forEach(a =>  result.push("<div className='board-row'>" + loop(a) + "</div>"));
         return (
             <div>
-                {result/* <div className="board-row">
+                {arr/* <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
                     {this.renderSquare(2)}
