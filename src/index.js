@@ -51,11 +51,26 @@ class Board extends React.Component {
     }
 }
 
+function Status(props) {
+    let status;
+    if (props.winner) {
+        let player = props.winner.pop();
+        status = "Winner: " + player;
+        return status;
+    } else if (!props.current.squares.includes(null)) {
+        status = "It's a draw";
+        return status;
+    } else {
+        status = "Next player: " + (props.xIsNext ? "X" : "O");
+        return status;
+    }
+}
+
 function RestartGame(props) {
     return (
         <button 
             className="restart-button" 
-            onClick={props.onClick}
+            onClick={() => props.onClickRestart()}
         >
             {"Restart Game"}
         </button>
@@ -65,19 +80,63 @@ function RestartGame(props) {
 function InvertMoves(props) {
     return(
         <button
-            onClick={props.onClick}
+            onClick={() => props.onClickInvert()}
         >
             { props.isInverted ? "Descending Order" : "Ascending Order"}
         </button>
     )
 }
 
-class MovesList extends React.Component {
-
+function MovesList(props) {
+    let moves = props.history.map((step, move) => {
+        const desc = move ? 'Go to move #' + move + " on position: " + step.pos : "Game Begining";
+        return (
+            <li key={move}>
+                <button onClick={() => props.jumpTo(move)}>{desc}</button>
+            </li>
+        )
+    })
+    if(props.isInverted) {
+        moves = moves.reverse();
+        return moves;
+    }
+    return moves;
 }
 
 class GameInfo extends React.Component {
-
+    render() {
+        return (
+            <div>
+                <div>
+                    <Status 
+                        winner={this.props.winner}
+                        current={this.props.current}
+                        xIsNext={this.props.xIsNext}
+                    />
+                </div>
+                <div>
+                    <RestartGame
+                        onClickRestart={() => this.props.onClickRestart()}
+                    />
+                </div>
+                <div>
+                    <InvertMoves 
+                        onClickInvert={() => this.props.onClickInvert()}
+                        isInverted={this.props.isInverted}
+                    />
+                </div>
+                <div>
+                    <ol>
+                        <MovesList 
+                            history={this.props.history}
+                            jumpTo={(move) => this.props.jumpTo(move)}
+                            isInverted={this.props.isInverted}
+                        />
+                    </ol>
+                </div>
+            </div>
+        );
+    }
 }
 
 class Game extends React.Component {
@@ -148,28 +207,10 @@ class Game extends React.Component {
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
-        let moves = history.map((step, move) => {
-            const desc = move ? 'Go to move #' + move + " on position: " + step.pos : "Game Begining";
-            return (
-                <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
-                </li>
-            )
-        })
-        if(this.state.isInverted) {
-            moves = moves.reverse();
+        if(winner) {
+            winner.map(i => current.winnerSquares[i] = true)
         }
 
-        let status;
-        if (winner) {
-            let player = winner.pop();
-            winner.map(i => current.winnerSquares[i] = true)
-            status = "Winner: " + player;
-        } else if (!current.squares.includes(null)) {
-            status = "It's a draw";
-        } else {
-            status = "Next player: " + (this.state.xIsNext ? "X" : "O");
-        }
         return (
             <div className="game">
                 <div className="game-board">
@@ -180,15 +221,16 @@ class Game extends React.Component {
                     />
                 </div>
                 <div className="game-info">
-                    <div>{status}</div>
-                    <RestartGame
-                        onClick={() => this.cleanHistory()}
-                    />
-                    <InvertMoves 
-                        onClick={() => this.handleInvertMovesClick()}
+                    <GameInfo 
+                        history={history}
+                        current={current}
+                        winner={winner}
+                        xIsNext={this.state.xIsNext}
                         isInverted={this.state.isInverted}
+                        onClickRestart={() => this.cleanHistory()}
+                        onClickInvert={() => this.handleInvertMovesClick()}
+                        jumpTo={(move) => this.jumpTo(move)}
                     />
-                    <ol>{moves}</ol>
                 </div>
             </div>
         );
