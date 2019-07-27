@@ -51,6 +51,35 @@ class Board extends React.Component {
     }
 }
 
+function RestartGame(props) {
+    return (
+        <button 
+            className="restart-button" 
+            onClick={props.onClick}
+        >
+            {"Restart Game"}
+        </button>
+    )
+}
+
+function InvertMoves(props) {
+    return(
+        <button
+            onClick={props.onClick}
+        >
+            { props.isInverted ? "Descending Order" : "Ascending Order"}
+        </button>
+    )
+}
+
+class MovesList extends React.Component {
+
+}
+
+class GameInfo extends React.Component {
+
+}
+
 class Game extends React.Component {
     constructor(props) {
         super(props);
@@ -64,7 +93,13 @@ class Game extends React.Component {
             ],
             stepNumber: 0,
             xIsNext: true,
+            isInverted: false,
         };
+    }
+    handleInvertMovesClick() {
+        this.setState({
+            isInverted: !this.state.isInverted,
+        });
     }
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -89,18 +124,20 @@ class Game extends React.Component {
             xIsNext: !this.state.xIsNext,
         });
     }
+    cleanHistory() {
+        this.setState({
+            history: [
+                {
+                    squares: Array(9).fill(null),
+                    winnerSquares: Array(9).fill(null),
+                    pos: "",
+                }
+            ],
+            stepNumber: 0,
+            xIsNext: true,
+        })
+    }
     jumpTo(step) {
-        if(step === 0) {
-            this.setState({
-                history: [
-                    {
-                        squares: Array(9).fill(null),
-                        winnerSquares: Array(9).fill(null),
-                        pos: "",
-                    }
-                ],
-            })
-        }
         this.setState({
             stepNumber: step,
             xIsNext: (step % 2) === 0,
@@ -110,24 +147,25 @@ class Game extends React.Component {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
-        console.log(current);
-        const moves = history.map((step, move) => {
-            const desc = move ? 'Go to move #' + move + " on position: " + step.pos : 'Restart Game';
+
+        let moves = history.map((step, move) => {
+            const desc = move ? 'Go to move #' + move + " on position: " + step.pos : "Game Begining";
             return (
                 <li key={move}>
                     <button onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             )
         })
+        if(this.state.isInverted) {
+            moves = moves.reverse();
+        }
 
         let status;
         if (winner) {
             let player = winner.pop();
-            current.winnerSquares[winner[0]] = true;
-            current.winnerSquares[winner[1]] = true;
-            current.winnerSquares[winner[2]] = true;
+            winner.map(i => current.winnerSquares[i] = true)
             status = "Winner: " + player;
-        } else if (history.length === 10) {
+        } else if (!current.squares.includes(null)) {
             status = "It's a draw";
         } else {
             status = "Next player: " + (this.state.xIsNext ? "X" : "O");
@@ -143,6 +181,13 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
+                    <RestartGame
+                        onClick={() => this.cleanHistory()}
+                    />
+                    <InvertMoves 
+                        onClick={() => this.handleInvertMovesClick()}
+                        isInverted={this.state.isInverted}
+                    />
                     <ol>{moves}</ol>
                 </div>
             </div>
@@ -172,10 +217,7 @@ function calculateWinner(squares) {
             squares[a] === squares[b] &&
             squares[a] === squares[c]
         ) {
-            let winner = [];
-            winner.push(a,b,c,squares[a]);
-            return winner;
-            //return squares[a];
+            return [a,b,c,squares[a]];
         }
     }
     return null;
