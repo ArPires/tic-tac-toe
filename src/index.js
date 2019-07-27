@@ -15,39 +15,29 @@ function Square(props) {
     );
 }
 
-
 class Board extends React.Component {
     renderSquare(i) {
         return (
             <Square
+                key={i}
                 value={this.props.squares[i]}
                 onClick={() => this.props.onClick(i)}
                 isWinner={this.props.winnerSquares[i]}
             />
         );
-    } 
+    }
+    loop(n) {
+        let arr = [];
+        for(let i = n; i < n + 3; i++) {
+            arr.push(this.renderSquare(i))
+        }
+        return arr;
+    }
     render() {
-        /* let result = [];
-        [0,3,6].forEach(a =>  result.push("<div className='board-row'>" + loop(a) + "</div>")); */
-        return (
-            <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
-            </div>
-        );
+        let res = [0,3,6].map(a => {
+            return <div key={a} className='board-row'>{this.loop(a)}</div>
+        })
+        return res;
     }
 }
 
@@ -278,12 +268,4 @@ function mapPosition(i) {
         "(3,3)"
     ]
     return arrOfPositions[i];
-}
-
-function loop(n) {
-    let arr = [];
-    for(let i = n; i < n + 3; i++){
-        arr.push("{this.renderSquare(" + i + ")}")
-    }
-    return arr;
 }
