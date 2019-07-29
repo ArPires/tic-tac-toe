@@ -78,11 +78,14 @@ function InvertMoves(props) {
 }
 
 function MovesList(props) {
+    const selectionArray = props.moves;
+    console.log(selectionArray)
     let moves = props.history.map((step, move) => {
+        const isSelected = selectionArray[move];
         const desc = move ? 'Go to move #' + move + " on position: " + step.pos : "Game Begining";
         return (
             <li key={move}>
-                <button onClick={() => props.jumpTo(move)}>{desc}</button>
+                <button style={ isSelected ? { fontWeight: "bold"} : { fontWeight: "normal"}} onClick={() => props.jumpTo(move)}>{desc}</button>
             </li>
         )
     })
@@ -121,6 +124,8 @@ class GameInfo extends React.Component {
                             history={this.props.history}
                             jumpTo={(move) => this.props.jumpTo(move)}
                             isInverted={this.props.isInverted}
+                            isSelected={this.props.isSelected}
+                            moves={this.props.moves}
                         />
                     </ol>
                 </div>
@@ -143,6 +148,7 @@ class Game extends React.Component {
             stepNumber: 0,
             xIsNext: true,
             isInverted: false,
+            moves: [],
         };
     }
     handleInvertMovesClick() {
@@ -155,6 +161,7 @@ class Game extends React.Component {
         const current = history[history.length - 1];
         const squares = current.squares.slice();
         const winnerSquares = current.winnerSquares.slice();
+        const moves = this.state.moves.slice(0, this.state.stepNumber + 1);
         const pos = mapPosition(i);
 
         if (calculateWinner(squares) || squares[i]) {
@@ -171,6 +178,7 @@ class Game extends React.Component {
             }]),
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
+            moves: moves.concat(false),
         });
     }
     cleanHistory() {
@@ -184,12 +192,17 @@ class Game extends React.Component {
             ],
             stepNumber: 0,
             xIsNext: true,
+            moves: [],
         })
     }
     jumpTo(step) {
+        const moves = this.state.moves.slice().fill(false);
+        moves[step] = true;
+
         this.setState({
             stepNumber: step,
             xIsNext: (step % 2) === 0,
+            moves: moves,
         })
     }
     render() {
@@ -220,6 +233,7 @@ class Game extends React.Component {
                         onClickRestart={() => this.cleanHistory()}
                         onClickInvert={() => this.handleInvertMovesClick()}
                         jumpTo={(move) => this.jumpTo(move)}
+                        moves={this.state.moves}
                     />
                 </div>
             </div>
